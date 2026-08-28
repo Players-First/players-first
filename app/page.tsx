@@ -6,6 +6,13 @@ type Route = "email" | "discord" | "public" | "video" | "creator";
 type Tone = "calm" | "firm" | "emotional";
 type PlayerType = "F2P" | "low spender" | "moderate spender" | "heavy spender";
 
+const IGG_EMAIL = "complaintsns@igg.com";
+const SOCIALS = {
+  Facebook: "https://www.facebook.com/DoomsdayLastSurvivors/",
+  Instagram: "https://www.instagram.com/doomsdaylastsurvivorsofficial",
+  TikTok: "https://www.tiktok.com/@doomsdaylastsurvivor?lang=en"
+};
+
 const issues = [
   "Pay-to-win / cost",
   "Armaments / Weapon Transcendence",
@@ -148,6 +155,8 @@ export default function Home() {
     ], seed)}"\n\nCORE ANGLE:\n- Main issue: ${issue}\n- Personal/community impact: ${impact}\n- Constructive request: IGG should ${request}\n\n30–60 SEC SCRIPT:\n"${opening} The issue I want to focus on is ${issue.toLowerCase()}. Players can accept monetisation, but they also need to believe that time, effort and spending have lasting value. Right now, ${impact}. IGG should ${request}. We are speaking up because we want Doomsday to succeed, not because we want it to fail."\n\nB-ROLL:\n- Relevant game system/menu\n- War or alliance footage\n- Older vs newer progression examples\n\nON-SCREEN TEXT:\n"WE LOVE THE GAME. WE WANT IT BETTER."\n\nCTA:\n"Share your own experience. One community, many voices."`;
   }, [route,issue,tone,playerType,years,love,impact,platform,version]);
 
+  const emailHref = `mailto:${IGG_EMAIL}?subject=${encodeURIComponent(`Doomsday: Last Survivors player feedback - ${issue}`)}&body=${encodeURIComponent(output)}`;
+
   function generateDraft() {
     setGenerated(true);
     setCopied(false);
@@ -281,6 +290,44 @@ export default function Home() {
           </div>
           <p className="note">Best result: change one line so it sounds unmistakably like you. Different players should send different messages.</p>
 
+          {route === "email" && (
+            <div className="send-box">
+              <div>
+                <strong>Ready to send it?</strong>
+                <p>IGG complaints email: <b>{IGG_EMAIL}</b></p>
+              </div>
+              <a className="btn action-link" href={emailHref}>Open email to IGG</a>
+            </div>
+          )}
+
+          {route === "public" && (
+            <div className="send-box social-box">
+              <div>
+                <strong>Post or tag Doomsday directly</strong>
+                <p>Copy your draft, then choose an official social channel.</p>
+              </div>
+              <div className="social-links">
+                {Object.entries(SOCIALS).map(([name,url]) => (
+                  <a key={name} className="btn secondary action-link" href={url} target="_blank" rel="noreferrer">{name}</a>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {(route === "video" || route === "creator") && (
+            <div className="send-box social-box">
+              <div>
+                <strong>Share it where IGG can see it</strong>
+                <p>Post your video on your own channel and tag or mention the official Doomsday accounts.</p>
+              </div>
+              <div className="social-links">
+                {Object.entries(SOCIALS).map(([name,url]) => (
+                  <a key={name} className="btn secondary action-link" href={url} target="_blank" rel="noreferrer">{name}</a>
+                ))}
+              </div>
+            </div>
+          )}
+
           {copied && (
             <div className="done-strip">
               <strong>Nice — you took action.</strong>
@@ -289,6 +336,15 @@ export default function Home() {
           )}
         </section>
       )}
+
+      <section className="contact-strip">
+        <span><strong>IGG feedback:</strong> {IGG_EMAIL}</span>
+        <span className="contact-links">
+          {Object.entries(SOCIALS).map(([name,url]) => (
+            <a key={name} href={url} target="_blank" rel="noreferrer">{name}</a>
+          ))}
+        </span>
+      </section>
 
       <p className="footer">Community project. Participation is voluntary. Criticise decisions, not people. No harassment, fake reviews or fabricated claims.</p>
     </main>
