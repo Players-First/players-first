@@ -71,8 +71,17 @@ textarea { min-height: 78px; resize: vertical; line-height: 1.4; }
 .result { white-space: pre-wrap; line-height: 1.58; background: #11162a; padding: 16px; border-radius: 14px; border: 1px solid var(--border); font-size: 15px; }
 .badge { display: inline-block; border: 1px solid var(--border); border-radius: 999px; padding: 5px 9px; color: var(--muted); font-size: 11px; margin-right: 5px; margin-bottom: 6px; }
 .note { border-left: 3px solid var(--accent2); padding-left: 11px; color: var(--muted); font-size: 13px; line-height: 1.45; }
+.send-box { margin-top: 14px; padding: 14px; border: 1px solid var(--border); border-radius: 14px; background: #202640; display: flex; justify-content: space-between; align-items: center; gap: 14px; }
+.send-box p { margin: 4px 0 0; color: var(--muted); font-size: 13px; line-height: 1.4; }
+.action-link { text-decoration: none; white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; }
+.social-box { align-items: flex-start; }
+.social-links { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
 .done-strip { margin-top: 14px; border-radius: 13px; background: #202640; border: 1px solid var(--border); padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .text-button { border: 0; background: transparent; color: var(--accent2); cursor: pointer; font-weight: 700; }
+.contact-strip { margin-top: 16px; border: 1px solid var(--border); border-radius: 14px; padding: 11px 13px; color: var(--muted); font-size: 12px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.contact-links { display: flex; gap: 10px; flex-wrap: wrap; }
+.contact-links a { color: var(--accent2); text-decoration: none; font-weight: 700; }
+.contact-links a:hover { text-decoration: underline; }
 .footer { color: var(--muted); font-size: 12px; line-height: 1.45; margin-top: 22px; }
 @media (max-width: 640px) {
   .wrap { padding: 18px 12px 46px; }
@@ -88,7 +97,9 @@ textarea { min-height: 78px; resize: vertical; line-height: 1.4; }
   .personal-grid .wide { grid-column: auto; }
   .generate { width: 100%; }
   .btnrow .btn { flex: 1 1 160px; }
-  .done-strip { align-items: flex-start; flex-direction: column; }
+  .done-strip, .send-box { align-items: stretch; flex-direction: column; }
+  .social-links { justify-content: flex-start; }
+  .social-links .action-link, .send-box > .action-link { width: 100%; }
 }
 @media (max-width: 390px) {
   .grid.actions { grid-template-columns: 1fr; }
