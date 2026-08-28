@@ -70,7 +70,7 @@ function emailEnglish(seed:number, issue:string, tone:Tone, years:string, player
     [opening,player,`I do not want to simply complain. I would rather see IGG ${request.replace(/^I would like IGG to /,"")}`,concern,closing],
     [player,concern,balance,ask,opening,closing]
   ];
-  return variants[(seed>>6)%variants.length].join("\n\n");
+  return variants[(seed>>>6)%variants.length].join("\n\n");
 }
 
 function publicEnglish(platform:Platform, seed:number, issue:string, request:string, impact:string, love:string){
