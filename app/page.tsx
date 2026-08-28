@@ -7,6 +7,7 @@ import { generateEnglish, localizedTone, type Route, type Tone, type Platform } 
 import { additionalDraft, additionalLanguages, type AdditionalLanguage } from "../content/additionalLanguages";
 import { getUI, uiLanguages, type UILanguage } from "../content/uiTranslations";
 import { personalization } from "../content/personalizationTranslations";
+import { polishUserText } from "../content/polish";
 
 type PlayerType = "" | "F2P" | "low spender" | "moderate spender" | "heavy spender";
 type SiteLanguage = UILanguage;
@@ -33,8 +34,8 @@ export default function Home(){
   useEffect(()=>{const lang=new URLSearchParams(window.location.search).get("lang") as SiteLanguage|null;if(lang&&(uiLanguages as readonly string[]).includes(lang))setLanguage(lang)},[]);
 
   const output=useMemo(()=>{
-    const draftLove=love.trim()||personal.love;
-    const draftImpact=impact.trim()||personal.impact;
+    const draftLove=love.trim()?polishUserText(love,language):personal.love;
+    const draftImpact=impact.trim()?polishUserText(impact,language):personal.impact;
     const draftYears=playerType?years:"";
     const english=generateEnglish({route,tone,issue,playerType:playerType||"player",years:draftYears,love:draftLove,impact:draftImpact,platform,version});
     if(language==="English") return english;
