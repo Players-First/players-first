@@ -19,11 +19,11 @@ const issues = [
 ];
 
 const routeMeta: Record<Route, {title:string, time:string, desc:string}> = {
-  email: { title: "Send feedback to IGG", time: "~2 min", desc: "Private, direct, constructive feedback." },
-  discord: { title: "Post in your community", time: "~2 min", desc: "Share your view in Discord or alliance chat." },
-  public: { title: "Post publicly", time: "~2–5 min", desc: "Post on your own social account or tag IGG / Doomsday." },
-  video: { title: "Make a short player video", time: "~5 min", desc: "A simple 30–60 second personal video. No editing required." },
-  creator: { title: "Creator mode", time: "~10+ min", desc: "Hooks, script, B-roll and CTA for creators." }
+  email: { title: "Send feedback to IGG", time: "~2 min", desc: "Private and direct" },
+  discord: { title: "Post in my community", time: "~2 min", desc: "Discord or alliance chat" },
+  public: { title: "Post publicly", time: "~2–5 min", desc: "Social media or public forum" },
+  video: { title: "Make a short video", time: "~5 min", desc: "Simple 30–60 sec player video" },
+  creator: { title: "Creator mode", time: "~10+ min", desc: "Hook, script, B-roll and CTA" }
 };
 
 const openings = [
@@ -93,6 +93,7 @@ const issueRequests: Record<string, string[]> = {
 function pick<T>(arr:T[], seed:number) {
   return arr[Math.abs(seed) % arr.length];
 }
+
 function hash(s:string) {
   let h = 2166136261;
   for (let i=0;i<s.length;i++){ h ^= s.charCodeAt(i); h = Math.imul(h,16777619); }
@@ -109,6 +110,8 @@ export default function Home() {
   const [impact,setImpact] = useState("it is becoming harder to keep up and harder to justify spending");
   const [platform,setPlatform] = useState("X / Facebook / Reddit");
   const [version,setVersion] = useState(0);
+  const [generated,setGenerated] = useState(false);
+  const [copied,setCopied] = useState(false);
 
   const output = useMemo(() => {
     const seed = hash([route,issue,tone,playerType,years,love,impact,platform,version].join("|"));
@@ -134,20 +137,41 @@ export default function Home() {
     }
 
     if (route === "video") {
-      return `HOOK:\n"I still play Doomsday because of ${love}. But I am worried about where the game is heading."\n\nSCRIPT:\n"I have played for around ${years} year${years === "1" ? "" : "s"}, and I am a ${playerType}.\n\nMy biggest concern right now is ${issue.toLowerCase()}. For me, ${impact}.\n\nI am not asking for everything to be free. I want IGG to ${request}.\n\nI am speaking up because I still care about the game, and I want players like me to have a reason to stay."\n\nRECORDING TIP:\nFilm vertically, one take, 30-60 seconds. Speak naturally - do not worry about perfect editing.`;
+      return `HOOK:\n"I still play Doomsday because of ${love}. But I am worried about where the game is heading."\n\nSCRIPT:\n"I have played for around ${years} year${years === "1" ? "" : "s"}, and I am a ${playerType}.\n\nMy biggest concern right now is ${issue.toLowerCase()}. For me, ${impact}.\n\nI am not asking for everything to be free. I want IGG to ${request}.\n\nI am speaking up because I still care about the game, and I want players like me to have a reason to stay."\n\nTIP:\nFilm vertically, one take, 30–60 seconds. Speak naturally. No fancy editing needed.`;
     }
 
     return `CREATOR PACK - ${issue.toUpperCase()}\n\nHOOK:\n"${pick([
-  "The problem is not that Doomsday makes money. The problem is what players are getting for that money.",
-  "Players are not asking IGG to make Doomsday free. They are asking for a game worth investing in.",
-  "How long should an investment in a mobile game stay relevant before the next system replaces it?",
-  "Doomsday players still care. That is exactly why they are getting louder."
-], seed)}"\n\nCORE ANGLE:\n- Long-term player perspective\n- Main issue: ${issue}\n- Personal/community impact: ${impact}\n- Constructive request: IGG should ${request}\n\n30-60 SEC SCRIPT:\n"${opening} The issue I want to focus on is ${issue.toLowerCase()}. Players can accept monetisation, but they also need to believe that time, effort and spending have lasting value. Right now, ${impact}. IGG should ${request}. We are speaking up because we want Doomsday to succeed, not because we want it to fail."\n\nB-ROLL:\n- Relevant game system/menu\n- War or alliance footage\n- Older vs newer progression examples\n- Community screenshots\n\nON-SCREEN TEXT:\n"WE LOVE THE GAME. WE WANT IT BETTER."\n\nCTA:\n"Share your own experience. One community, many voices."`;
+      "The problem is not that Doomsday makes money. The problem is what players are getting for that money.",
+      "Players are not asking IGG to make Doomsday free. They are asking for a game worth investing in.",
+      "How long should an investment in a mobile game stay relevant before the next system replaces it?",
+      "Doomsday players still care. That is exactly why they are getting louder."
+    ], seed)}"\n\nCORE ANGLE:\n- Main issue: ${issue}\n- Personal/community impact: ${impact}\n- Constructive request: IGG should ${request}\n\n30–60 SEC SCRIPT:\n"${opening} The issue I want to focus on is ${issue.toLowerCase()}. Players can accept monetisation, but they also need to believe that time, effort and spending have lasting value. Right now, ${impact}. IGG should ${request}. We are speaking up because we want Doomsday to succeed, not because we want it to fail."\n\nB-ROLL:\n- Relevant game system/menu\n- War or alliance footage\n- Older vs newer progression examples\n\nON-SCREEN TEXT:\n"WE LOVE THE GAME. WE WANT IT BETTER."\n\nCTA:\n"Share your own experience. One community, many voices."`;
   }, [route,issue,tone,playerType,years,love,impact,platform,version]);
 
+  function generateDraft() {
+    setGenerated(true);
+    setCopied(false);
+    window.setTimeout(() => document.getElementById("draft")?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+  }
+
   async function copyOutput() {
-    try { await navigator.clipboard.writeText(output); }
-    catch { alert("Copy is unavailable here. Select the text manually."); }
+    try {
+      await navigator.clipboard.writeText(output);
+      setCopied(true);
+    } catch {
+      alert("Copy is unavailable here. Select the text manually.");
+    }
+  }
+
+  function anotherVersion() {
+    setVersion(v=>v+1);
+    setCopied(false);
+  }
+
+  function chooseAnotherAction() {
+    setGenerated(false);
+    setCopied(false);
+    window.scrollTo({top: 0, behavior: "smooth"});
   }
 
   return (
@@ -155,28 +179,42 @@ export default function Home() {
       <section className="hero">
         <div className="kicker">Players First</div>
         <h1>One community.<br/>Many voices.</h1>
-        <p className="subtitle">
-          Choose something you are comfortable doing. We will help you turn your own experience into a useful action.
-          The goal is not identical copy-paste spam - it is many real players speaking in their own voices.
-        </p>
+        <p className="subtitle">Pick one small action. We will help you say it in your own voice.</p>
       </section>
 
-      <section className="panel">
-        <h2>1. How do you want to help?</h2>
-        <div className="grid actions">
+      <section className="panel primary-panel">
+        <div className="stephead">
+          <span className="stepnum">1</span>
+          <div>
+            <h2>How do you want to help?</h2>
+            <p>Choose whatever feels comfortable today.</p>
+          </div>
+        </div>
+
+        <div className="grid actions compact-actions">
           {(Object.keys(routeMeta) as Route[]).map(r => (
-            <button key={r} className={`choice ${route===r ? "active":""}`} onClick={()=>setRoute(r)}>
+            <button key={r} className={`choice ${route===r ? "active":""}`} onClick={()=>{setRoute(r); setGenerated(false);}}>
               <strong>{routeMeta[r].title}</strong>
-              <div className="small">{routeMeta[r].time}</div>
-              <div className="small">{routeMeta[r].desc}</div>
+              <div className="choice-meta"><span>{routeMeta[r].time}</span><span>{routeMeta[r].desc}</span></div>
             </button>
           ))}
         </div>
+
+        <button className="easy-link" onClick={()=>{setRoute("email"); setGenerated(false);}}>
+          Not sure? Start with private feedback to IGG →
+        </button>
       </section>
 
       <section className="panel">
-        <h2>2. Tell us just enough to make it yours</h2>
-        <div className="controls">
+        <div className="stephead">
+          <span className="stepnum">2</span>
+          <div>
+            <h2>What matters most to you?</h2>
+            <p>Two quick choices are enough. Everything else is optional.</p>
+          </div>
+        </div>
+
+        <div className="quick-controls">
           <label>Biggest issue
             <select value={issue} onChange={e=>setIssue(e.target.value)}>
               {issues.map(i=><option key={i}>{i}</option>)}
@@ -186,65 +224,73 @@ export default function Home() {
             <select value={tone} onChange={e=>setTone(e.target.value as Tone)}>
               <option value="calm">Calm</option>
               <option value="firm">Firm</option>
-              <option value="emotional">Emotional</option>
+              <option value="emotional">Personal / emotional</option>
             </select>
-          </label>
-          <label>Player type
-            <select value={playerType} onChange={e=>setPlayerType(e.target.value as PlayerType)}>
-              <option>F2P</option>
-              <option>low spender</option>
-              <option>moderate spender</option>
-              <option>heavy spender</option>
-            </select>
-          </label>
-          <label>Years played
-            <input value={years} onChange={e=>setYears(e.target.value)} inputMode="decimal" />
           </label>
         </div>
-        <div className="grid" style={{marginTop:12}}>
-          <label>What do you still love about the game?
-            <textarea value={love} onChange={e=>setLove(e.target.value)} />
-          </label>
-          <label>How is this issue affecting you?
-            <textarea value={impact} onChange={e=>setImpact(e.target.value)} />
-          </label>
-          {route === "public" && (
-            <label>Where are you posting?
-              <input value={platform} onChange={e=>setPlatform(e.target.value)} />
+
+        <details className="personalise">
+          <summary>Make it more personal <span>optional</span></summary>
+          <div className="personal-grid">
+            <label>Player type
+              <select value={playerType} onChange={e=>setPlayerType(e.target.value as PlayerType)}>
+                <option>F2P</option>
+                <option>low spender</option>
+                <option>moderate spender</option>
+                <option>heavy spender</option>
+              </select>
             </label>
+            <label>Years played
+              <input value={years} onChange={e=>setYears(e.target.value)} inputMode="decimal" />
+            </label>
+            <label className="wide">What keeps you playing?
+              <textarea value={love} onChange={e=>setLove(e.target.value)} />
+            </label>
+            <label className="wide">How is this issue affecting you?
+              <textarea value={impact} onChange={e=>setImpact(e.target.value)} />
+            </label>
+            {route === "public" && (
+              <label className="wide">Where are you posting?
+                <input value={platform} onChange={e=>setPlatform(e.target.value)} />
+              </label>
+            )}
+          </div>
+        </details>
+
+        <button className="btn generate" onClick={generateDraft}>Create my draft</button>
+      </section>
+
+      {generated && (
+        <section className="panel draft-panel" id="draft">
+          <div className="stephead">
+            <span className="stepnum">3</span>
+            <div>
+              <h2>Your draft</h2>
+              <p>Edit anything you like. It should sound like you.</p>
+            </div>
+          </div>
+
+          <div className="draft-meta">
+            <span className="badge">{routeMeta[route].title}</span>
+            <span className="badge">{issue}</span>
+          </div>
+          <div className="result">{output}</div>
+          <div className="btnrow">
+            <button className="btn" onClick={copyOutput}>{copied ? "Copied ✓" : "Copy draft"}</button>
+            <button className="btn secondary" onClick={anotherVersion}>Try another version</button>
+          </div>
+          <p className="note">Best result: change one line so it sounds unmistakably like you. Different players should send different messages.</p>
+
+          {copied && (
+            <div className="done-strip">
+              <strong>Nice — you took action.</strong>
+              <button className="text-button" onClick={chooseAnotherAction}>Give me another action →</button>
+            </div>
           )}
-        </div>
-      </section>
+        </section>
+      )}
 
-      <section className="panel">
-        <h2>3. Your draft</h2>
-        <div className="badge">{routeMeta[route].time}</div>
-        <div className="badge">{issue}</div>
-        <div className="badge">{tone}</div>
-        <div className="result">{output}</div>
-        <div className="btnrow">
-          <button className="btn" onClick={copyOutput}>Copy draft</button>
-          <button className="btn secondary" onClick={()=>setVersion(v=>v+1)}>Give me another version</button>
-        </div>
-        <p className="note">
-          Add or change at least one sentence in your own words before posting. The platform deliberately varies openings,
-          requests and closings so people are not all sending the same message.
-        </p>
-      </section>
-
-      <section className="panel">
-        <h2>4. Done?</h2>
-        <div className="grid actions">
-          <div className="card"><strong>I did this</strong><div className="small">For V1 this is intentionally local-only. We can add anonymous aggregate counters later.</div></div>
-          <div className="card"><strong>Give me another action</strong><div className="small">Choose a different route above and turn the same experience into another format.</div></div>
-          <div className="card"><strong>I want to do more</strong><div className="small">Future route: stories, translations, evidence, graphics, alliance outreach and community projects.</div></div>
-        </div>
-      </section>
-
-      <p className="footer">
-        Community project. Participation is voluntary. Criticise decisions, not people. No harassment, fabricated claims or fake reviews.
-        Clearly label estimates and personal experiences.
-      </p>
+      <p className="footer">Community project. Participation is voluntary. Criticise decisions, not people. No harassment, fake reviews or fabricated claims.</p>
     </main>
   );
 }
