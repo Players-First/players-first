@@ -31,4 +31,4 @@ export const en = {
     "Bugs / performance"
   ],
   platforms: ["Facebook", "Instagram", "TikTok", "X", "Reddit"]
-} as const;
+};
