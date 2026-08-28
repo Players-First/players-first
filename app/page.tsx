@@ -4,8 +4,10 @@ import { useMemo, useState } from "react";
 import { en } from "../content/en";
 import { localizedDraft, type SupportedLanguage } from "../content/localized";
 import { generateEnglish, localizedTone, type Route, type Tone, type Platform } from "../content/generator";
+import { additionalDraft, additionalLanguages, type AdditionalLanguage } from "../content/additionalLanguages";
 
 type PlayerType = "F2P" | "low spender" | "moderate spender" | "heavy spender";
+type SiteLanguage = SupportedLanguage | AdditionalLanguage;
 
 const IGG_EMAIL = "complaintsns@igg.com";
 const SOCIALS = {
@@ -13,6 +15,7 @@ const SOCIALS = {
   Instagram: "https://www.instagram.com/doomsdaylastsurvivorsofficial",
   TikTok: "https://www.tiktok.com/@doomsdaylastsurvivor?lang=en"
 };
+const CORE_LANGUAGES: SupportedLanguage[] = ["English","Español","Português","Français","Deutsch"];
 
 export default function Home(){
   const [route,setRoute]=useState<Route>("email");
@@ -23,7 +26,7 @@ export default function Home(){
   const [love,setLove]=useState("my alliance and the people I play with");
   const [impact,setImpact]=useState("it is becoming harder to keep up and harder to justify spending");
   const [platform,setPlatform]=useState<Platform>("Facebook");
-  const [language,setLanguage]=useState<SupportedLanguage>("English");
+  const [language,setLanguage]=useState<SiteLanguage>("English");
   const [version,setVersion]=useState(0);
   const [generated,setGenerated]=useState(false);
   const [copied,setCopied]=useState(false);
@@ -31,12 +34,17 @@ export default function Home(){
   const output=useMemo(()=>{
     const ctx={route,tone,issue,playerType,years,love,impact,platform,version};
     const english=generateEnglish(ctx);
-    const translated=localizedDraft(language,route,{issue,impact,love,playerType,years,platform});
-    if(!translated || language==="English") return english;
+    if(language==="English") return english;
+
+    if((additionalLanguages as SiteLanguage[]).includes(language)){
+      return additionalDraft(language as AdditionalLanguage,route,tone,{issue,impact,love,playerType,years,platform});
+    }
+
+    const translated=localizedDraft(language as SupportedLanguage,route,{issue,impact,love,playerType,years,platform});
+    if(!translated) return english;
     const toneLine=localizedTone[language]?.[tone];
     if(!toneLine) return translated;
-    if(tone==="firm") return `${toneLine}\n\n${translated}`;
-    if(tone==="emotional") return `${toneLine}\n\n${translated}`;
+    if(tone==="firm" || tone==="emotional") return `${toneLine}\n\n${translated}`;
     return `${translated}\n\n${toneLine}`;
   },[route,issue,tone,playerType,years,love,impact,platform,language,version]);
 
@@ -55,8 +63,13 @@ export default function Home(){
       <div className="hero-top">
         <div><div className="kicker">{en.brand}</div><h1>One community.<br/>Many voices.</h1></div>
         <label className="lang">Language
-          <select value={language} onChange={e=>{setLanguage(e.target.value as SupportedLanguage);setGenerated(false)}}>
-            {(["English","Español","Português","Français","Deutsch"] as SupportedLanguage[]).map(l=><option key={l}>{l}</option>)}
+          <select value={language} onChange={e=>{setLanguage(e.target.value as SiteLanguage);setGenerated(false)}}>
+            <optgroup label="Current">
+              {CORE_LANGUAGES.map(l=><option key={l}>{l}</option>)}
+            </optgroup>
+            <optgroup label="More communities">
+              {additionalLanguages.map(l=><option key={l}>{l}</option>)}
+            </optgroup>
           </select>
         </label>
       </div>
@@ -93,7 +106,7 @@ export default function Home(){
     {generated&&<section className="panel draft-panel" id="draft">
       <div className="stephead"><span className="stepnum">3</span><div><h2>Your draft</h2><p>Edit anything you like. It should sound like you.</p></div></div>
       <div className="draft-meta"><span className="badge">{tone==="calm"?"Calm / constructive":tone==="firm"?"Firm / direct":"Personal / emotional"}</span>{language!=="English"&&<span className="badge">{language}</span>}</div>
-      <div className="result" id="draft-text">{output}</div>
+      <div className="result" id="draft-text" dir={language==="العربية"?"rtl":"ltr"}>{output}</div>
       <div className="btnrow">
         <button className="btn" onClick={()=>copy()}>{copied?"Copied ✓":"Copy draft"}</button>
         <button className="btn secondary" onClick={()=>{setVersion(v=>v+1);setCopied(false)}}>Try another version</button>
@@ -102,12 +115,15 @@ export default function Home(){
       <div className="sr-live" aria-live="polite">{copied?"Draft copied to clipboard":""}</div>
       {route==="discord"&&<p className="note">Paste this into your own alliance chat, Discord server or community. There is no single official destination for this route.</p>}
       {route==="public"&&<div className="social-row">{Object.entries(SOCIALS).map(([name,url])=><a target="_blank" rel="noreferrer" href={url} key={name}>{name}</a>)}</div>}
-      <p className="note">Tone now changes the framing and language of the draft, not just a single sentence. Change one line yourself for the most personal result.</p>
+      <p className="note">Tone changes the framing and language of the draft. Change one line yourself for the most personal result.</p>
     </section>}
 
     <section className="panel graphics-cta"><div className="stephead"><span className="stepnum">★</span><div><h2>Don’t want to write?</h2><p>Grab a ready-to-post graphic and a translated caption instead.</p></div></div><a className="btn linkbtn" href="/graphics">Open ready-to-post graphics</a></section>
 
-    <section className="contact-strip"><div><strong>Contact IGG</strong><a href={`mailto:${IGG_EMAIL}`}>{IGG_EMAIL}</a></div><div><strong>Official socials</strong><span>{Object.entries(SOCIALS).map(([name,url])=><a key={name} href={url} target="_blank" rel="noreferrer">{name}</a>)}</span></div></section>
+    <section className="contact-strip">
+      <div><strong>Send your feedback to IGG</strong><a href={`mailto:${IGG_EMAIL}`}>{IGG_EMAIL}</a></div>
+      <div><strong>Comment your feedback on IGG’s official socials</strong><span>{Object.entries(SOCIALS).map(([name,url])=><a key={name} href={url} target="_blank" rel="noreferrer">{name}</a>)}</span></div>
+    </section>
     <p className="footer">Community project. Participation is voluntary. Criticise decisions, not people. No harassment, fake reviews or fabricated claims. Clearly label estimates and personal experiences.</p>
   </main>;
 }
